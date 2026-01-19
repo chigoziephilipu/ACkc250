@@ -1,0 +1,862 @@
+   68  history
+# Proxmox VE 9 Enterprise As-Built + Runbook (BDA Node 250)
+
+**Node Name:** `pve`  
+**Host Role:** Kaycee’s Business Digital Assistant (BDA) hypervisor  
+**Mgmt IP:** `10.0.0.250/24` (bridge `vmbr0`)  
+**Default Gateway:** `10.0.0.1`  
+**Prepared For:** Client Delivery / GitHub  
+**Document Type:** As-Built + SOPs + Day-2 Runbook (Production-Ready)
+
+---
+
+## 1) Executive Summary
+
+This document provides a client-grade **As-Built implementation** and **operational runbook** for a single-node **Proxmox VE 9** deployment running on **Debian GNU/Linux 13 (trixie)**. The node functions as a small-business private cloud (“BDA Node 250”) capable of hosting VMs and LXC containers while supporting enterprise practices including secure repository management, standardized container provisioning, baseline hardening, monitoring, backup/DR, and centralized logging/SIEM integration.
+
+The build includes a production bridge network (`vmbr0` on `eno1`) with management IP **10.0.0.250/24**, validated L2/L3 reachability, and documented remediation for issues encountered during commissioning:
+- DNS resolution failures during package operations
+- Proxmox Enterprise repository 401 Unauthorized errors
+- LXC provisioning failure using a Debian 13 template
+
+This runbook contains **copy/paste-ready commands** for reproducing and maintaining the environment.
+
+---
+
+## 2) Scope and Assumptions
+
+### 2.1 Scope
+- Single Proxmox VE host: `pve`
+- Network bridge: `vmbr0` (uplink `eno1`)
+- Storage: LVM + thin pool (local-lvm)
+- Repository configuration (disable enterprise repo; enable no-subscription)
+- Standard LXC provisioning (Debian 12 recommended)
+- Baseline hardening (SSH posture, firewall guidance, updates, MFA guidance)
+- Monitoring & alerting integration options
+- Backup strategy (PBS recommended; NFS vzdump fallback)
+- Central logging and SIEM integration pattern (Wazuh)
+
+### 2.2 Assumptions
+- LAN is `10.0.0.0/24` with gateway `10.0.0.1`
+- Internet egress is available (validated via ping to `1.1.1.1`)
+- DNS resolvers available (currently `/etc/resolv.conf` uses `192.168.100.1` and `1.1.1.1`)
+- Proxmox subscription is not present; enterprise repos must remain disabled to avoid update failures.
+
+### 2.3 Constraints / Notes
+- Boot mode: **legacy-bios** (affects some secure boot/TPM assumptions)
+- Git was not installed at commissioning time (`git: command not found`)
+
+---
+
+## 3) Environment Inventory (Hardware / OS / Proxmox)
+
+### 3.1 Platform Summary (As-Built)
+
+| Category | Value |
+|---|---|
+| OS | Debian GNU/Linux 13 (trixie) |
+| Kernel | `Linux pve 6.14.8-2-pve #1 SMP PREEMPT_DYNAMIC PMX 6.14.8-2 (2025-07-22T10:04Z) x86_64` |
+| Proxmox VE | `proxmox-ve: 9.0.0` |
+| pve-manager | `9.0.3 (025864202ebb6109)` |
+| lxc-pve | `6.0.4-2` |
+| pve-container | `6.0.9` |
+| Boot Mode | `legacy-bios` |
+| Node Status | `online` |
+| vCPU | `4` |
+| RAM | `7.64 GiB total` |
+
+**Source-of-truth commands**
+```bash
+uname -a
+cat /etc/os-release
+pveversion -v
+pvesh get /nodes
+pvesh get /nodes/$(hostname)/status
+free -h
+
+3.2 Proxmox Component Inventory (As-Built)
+
+Command
+
+pveversion -v
+
+
+Operational note (why):
+
+This output is used for audit evidence and compatibility confirmation for templates, backups, and add-on tooling.
+
+4) Network Architecture
+4.1 Current Network State (As-Built)
+Item	Value
+Uplink NIC	eno1
+Link	1000Mb/s, Full Duplex, Link detected yes
+Bridge	vmbr0
+Bridge Ports	eno1
+Bridge STP	off
+Host IP (Mgmt)	10.0.0.250/24
+Default Route	default via 10.0.0.1 dev vmbr0
+LAN Route	10.0.0.0/24 dev vmbr0 proto kernel scope link src 10.0.0.250
+Gateway MAC	04:4e:5a:99:d5:2f
+Neighbor Example	10.0.0.148 lladdr e0:75:26:1b:e2:c2 REACHABLE
+
+Validation commands
+
+ip -br link
+ip -br addr
+ip r
+brctl show 2>/dev/null || true
+bridge link
+ethtool eno1 | egrep -i 'link detected|speed|duplex'
+ip neigh
+
+4.2 L2/L3 Validation Evidence
+
+Layer 3 reachability
+
+ping -c 3 10.0.0.1
+ping -c 3 1.1.1.1
+
+
+DNS resolution (validated)
+
+getent hosts deb.debian.org
+getent hosts enterprise.proxmox.com
+
+
+Resolver configuration (as observed)
+
+cat /etc/resolv.conf
+
+
+Observed resolvers:
+
+nameserver 192.168.100.1
+
+nameserver 1.1.1.1
+
+ARP/DHCP validation (commissioning evidence)
+
+tcpdump -ni eno1 -c 20 'arp or (udp and (port 67 or 68))'
+
+
+Why this matters:
+
+Confirms the bridge is passing L2 frames correctly (ARP replies present)
+
+Confirms DHCP traffic exists on the segment (helpful when guests use DHCP)
+
+Confirms gateway reachability and correct MAC learning.
+
+4.3 Enterprise Network Improvements (Recommended)
+
+If this BDA node will host multiple business services, implement VLAN segmentation using a VLAN-aware bridge.
+
+Example: VLAN-aware bridge (vmbr0)
+
+# /etc/network/interfaces (example pattern)
+auto eno1
+iface eno1 inet manual
+
+auto vmbr0
+iface vmbr0 inet static
+    address 10.0.0.250/24
+    gateway 10.0.0.1
+    bridge-ports eno1
+    bridge-stp off
+    bridge-fd 0
+    bridge-vlan-aware yes
+    bridge-vids 2-4094
+
+
+Why: isolates management, servers, and backup/storage traffic for better security and reliability.
+
+5) Storage Architecture
+5.1 Disk Inventory (As-Built)
+Device	Size	Notes
+sda	465.8G	Primary disk
+sdb	59.5G	Removable USB disk
+sr0	7.2G	Optical/ISO device
+
+Commands
+
+lsblk
+
+5.2 LVM / Thin Pool Layout (As-Built)
+LV	Size	Type	Mount/Use
+pve-root	96G	LVM	/
+pve-swap	7.6G	LVM	swap
+pve-data	338.2G	thin	guest disks
+pve-data_tmeta	3.4G	thin meta	internal
+pve-data_tdata	338.2G	thin data	internal
+
+Commands
+
+lsblk
+pvs
+vgs
+lvs -a
+pvesm status
+
+
+Why:
+
+Thin provisioning allows efficient VM/LXC disk allocation.
+
+pve-root is isolated from guest workloads to reduce OS risk.
+
+5.3 Storage Operational Standards
+
+Keep pve-root utilization below 70% (logs + packages + ISO storage pressure)
+
+Store ISO/templates on local and VM disks on local-lvm
+
+Backups should go to PBS or dedicated NFS storage, not pve-root
+
+Checks
+
+df -h /
+pvesm status
+lvs -a
+
+6) Repository Configuration (Fixing Enterprise 401 Unauthorized)
+6.1 Known Issue: Proxmox Enterprise Repo 401 Unauthorized
+
+Observed during apt update:
+
+401 Unauthorized for:
+
+https://enterprise.proxmox.com/debian/ceph-squid trixie InRelease
+
+https://enterprise.proxmox.com/debian/pve trixie InRelease
+
+apt also reported the repo was “not signed” due to being disabled for secure updates when auth fails.
+
+Why it happens:
+The enterprise repo requires an active subscription. Without it, APT fails and blocks secure updates.
+
+6.2 Remediation: Disable Enterprise Repos + Enable No-Subscription Repo
+
+1) Locate enterprise entries
+
+grep -Rni 'enterprise.proxmox.com' /etc/apt/sources.list /etc/apt/sources.list.d/*.list || true
+ls -la /etc/apt/sources.list.d/
+
+
+2) Comment out enterprise lines safely
+
+for f in /etc/apt/sources.list /etc/apt/sources.list.d/*.list; do
+  [ -f "$f" ] || continue
+  cp -a "$f" "$f.bak.$(date +%F_%H%M%S)"
+  sed -i 's|^\s*deb\s\+https://enterprise\.proxmox\.com|# deb https://enterprise.proxmox.com|g' "$f"
+done
+
+
+3) Add the no-subscription repository (Proxmox VE 9 on trixie)
+
+cat >/etc/apt/sources.list.d/pve-no-subscription.list <<'EOF'
+deb http://download.proxmox.com/debian/pve trixie pve-no-subscription
+EOF
+
+
+4) Update package cache
+
+apt clean
+apt update
+
+
+5) Upgrade safely
+
+apt -y full-upgrade
+
+
+6) Confirm no enterprise repos remain active
+
+grep -Rni 'enterprise.proxmox.com' /etc/apt/sources.list /etc/apt/sources.list.d/*.list || true
+
+7) LXC Provisioning Standards + Debian 13 Template Compatibility
+7.1 Known Issue: Debian 13 LXC Template “unsupported debian version '13.1'”
+
+During commissioning, the Debian 13 standard template:
+
+debian-13-standard_13.1-2_amd64.tar.zst
+failed with:
+
+unsupported debian version '13.1'
+and the container ID (e.g., 100) did not persist after failure (expected when create aborts).
+
+Why it happens:
+Template metadata/version strings can be newer than the LXC tooling stack’s supported mapping (especially with a newly released Debian).
+
+7.2 Production Standard: Use Debian 12 LXC Templates
+
+Why: Debian 12 is mature, widely supported, and avoids template parsing errors.
+
+Template management
+
+pveam update
+pveam available | grep -i debian
+pveam download local debian-12-standard_*.tar.zst
+
+7.3 Standard Container Build (Debian 12, CTID 100)
+
+Create CT
+
+pct create 100 local:vztmpl/debian-12-standard_*.tar.zst \
+  --hostname bda-ct100 \
+  --cores 2 \
+  --memory 2048 \
+  --swap 512 \
+  --rootfs local-lvm:16 \
+  --net0 name=eth0,bridge=vmbr0,ip=dhcp \
+  --unprivileged 1 \
+  --features nesting=1
+
+
+Start + access
+
+pct start 100
+pct status 100
+pct enter 100
+
+7.4 If Debian 13 LXC Is Mandatory (Upgrade Approach)
+apt update
+apt -y full-upgrade
+apt install -y pve-container lxc-pve
+pct version
+pveam update
+pveam available | grep -i debian-13 || true
+
+8) Baseline Hardening (SSH, Firewall, Updates, MFA)
+8.1 SSH Hardening (Host)
+
+Why: Reduce remote compromise risk. Proxmox hosts are privileged infrastructure and should be locked down.
+
+Check current SSH posture
+
+ss -tulpn | grep -E ':22|:8006' || true
+grep -nE '^(PermitRootLogin|PasswordAuthentication|PubkeyAuthentication|AllowUsers|AllowGroups)' /etc/ssh/sshd_config || true
+
+
+Apply recommended settings
+
+cp -a /etc/ssh/sshd_config /etc/ssh/sshd_config.bak.$(date +%F_%H%M%S)
+
+# Edit carefully (use nano or vim)
+nano /etc/ssh/sshd_config
+
+
+Recommended baseline (set explicitly):
+
+PermitRootLogin prohibit-password
+
+PasswordAuthentication no
+
+PubkeyAuthentication yes
+
+Restart:
+
+systemctl restart ssh
+systemctl status ssh --no-pager
+
+8.2 Firewall (Proxmox Firewall Recommended)
+
+Why: Management interfaces should only be accessible from trusted networks.
+
+Quick status checks
+
+pve-firewall status || true
+nft list ruleset | sed -n '1,160p' || true
+
+
+Operational guidance
+
+Enable Proxmox firewall at Datacenter and Node levels.
+
+Create rules restricting:
+
+TCP/8006 (Proxmox UI)
+
+TCP/22 (SSH)
+
+ICMP optional
+
+Prefer allow-listing admin subnets only.
+
+8.3 Updates / Patch Cadence
+
+Why: Hypervisor vulnerabilities are high-impact.
+
+apt update
+apt -y full-upgrade
+reboot
+
+
+Post-reboot validation:
+
+pveversion -v
+uname -a
+pvesh get /nodes/$(hostname)/status
+
+8.4 MFA (Proxmox UI)
+
+Why: Web UI is a major attack surface.
+
+Datacenter → Permissions → Two Factor
+
+Enroll administrators in TOTP-based 2FA.
+
+9) Monitoring & Alerting (Prometheus/Grafana + Proxmox Metrics)
+9.1 Baseline Host Telemetry Commands
+pvesh get /nodes/$(hostname)/status
+uptime
+free -h
+df -h
+pvesm status
+journalctl -p err -xb --no-pager | tail -n 80
+
+9.2 Recommended Monitoring Stack (Dedicated VM)
+
+Why: Keep monitoring independent of the hypervisor (so metrics survive host issues).
+
+On a monitoring VM (Debian/Ubuntu):
+
+apt update
+apt install -y prometheus grafana prometheus-node-exporter
+systemctl enable --now prometheus grafana-server prometheus-node-exporter
+
+9.3 Proxmox Metrics Options (Enterprise)
+
+Export to InfluxDB for Grafana dashboards (traditional)
+
+Use Prometheus exporters + node_exporter + alertmanager (modern)
+
+10) Backup & Disaster Recovery
+10.1 Recommended: Proxmox Backup Server (PBS)
+
+Why: deduplication, encryption, retention, fast restores.
+
+Host-side readiness (client tools already present)
+
+proxmox-backup-client is installed (as seen in pveversion -v)
+
+Validate:
+
+dpkg -l | grep -E 'proxmox-backup-(client|file-restore|restore-image)' || true
+
+10.2 Fallback: NFS + vzdump
+
+Add NFS storage (example; requires an NFS server)
+
+pvesm add nfs backup-nfs \
+  --server 10.0.0.10 \
+  --export /export/proxmox \
+  --content backup,iso,vztmpl \
+  --options vers=4
+
+pvesm status
+
+
+Run a backup
+
+vzdump 100 --storage backup-nfs --compress zstd --mode snapshot
+
+
+Why: Provides operational safety even without PBS.
+
+11) Central Logging / SIEM Integration (Wazuh)
+11.1 Integration Goals
+
+Host authentication events (SSH)
+
+Proxmox service logs
+
+Firewall changes
+
+Guest lifecycle changes (VM/LXC start/stop)
+
+11.2 Log Sources to Collect
+ls -la /var/log | head
+ls -la /var/log/pve* 2>/dev/null || true
+
+
+Key files (typical):
+
+/var/log/auth.log
+
+/var/log/syslog
+
+/var/log/pveproxy/access.log
+
+/var/log/pveproxy/error.log
+
+/var/log/pvedaemon.log
+
+/var/log/pvescheduler.log
+
+11.3 Wazuh Agent “Install Hook” (Operational Placeholder)
+
+The manager IP and enrollment method must match the client’s Wazuh deployment. This hook ensures the BDA runbook is ready to execute immediately.
+
+cat >/root/wazuh-agent-install.sh <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+WAZUH_MANAGER_IP="${1:-10.0.0.20}"
+echo "[*] Wazuh agent install hook placeholder. Manager: ${WAZUH_MANAGER_IP}"
+echo "[!] Update this script with the official Wazuh agent install steps for Debian 13."
+echo "[!] After install, ensure manager IP is configured and service is enabled."
+exit 0
+EOF
+
+chmod +x /root/wazuh-agent-install.sh
+
+12) Day-2 Operations (Golden Commands + Troubleshooting Playbook)
+12.1 “Golden Commands” (Daily/Weekly)
+# Identity + versions
+hostname
+pveversion -v
+uname -a
+cat /etc/os-release
+
+# Health
+pvesh get /nodes/$(hostname)/status
+free -h
+df -h
+pvesm status
+uptime
+
+# Network
+ip -br link
+ip -br addr
+ip r
+ip neigh
+ethtool eno1 | egrep -i 'link detected|speed|duplex'
+
+# Logs
+journalctl -p err -xb --no-pager | tail -n 80
+
+12.2 Troubleshooting Playbook
+A) “apt update fails”
+
+Validate DNS + reachability:
+
+ping -c 3 10.0.0.1
+ping -c 3 1.1.1.1
+getent hosts deb.debian.org
+cat /etc/resolv.conf
+
+
+Validate repos:
+
+grep -Rni 'enterprise.proxmox.com' /etc/apt/sources.list /etc/apt/sources.list.d/*.list || true
+apt update
+
+B) “VMs/LXC cannot reach network”
+ip r
+ip neigh
+bridge link
+tcpdump -ni eno1 -c 20 arp
+
+C) “LXC create fails”
+pveam update
+pveam available | grep -i debian
+pct list
+journalctl -u pvedaemon -n 200 --no-pager || true
+
+13) Handover Checklist (Client-Ready)
+Platform
+
+ Proxmox UI reachable: https://10.0.0.250:8006
+
+ Admin accounts created, least privilege applied
+
+ MFA enabled for admins
+
+Security
+
+ SSH hardened (keys preferred, password auth disabled if approved)
+
+ Firewall policy implemented and tested
+
+ Patch schedule documented
+
+Operations
+
+ Debian 12 LXC standard template validated
+
+ Backup storage configured (PBS preferred)
+
+ First backup executed + restore test scheduled
+
+ Monitoring deployed (or assigned)
+
+Documentation
+
+ This runbook committed to GitHub repo
+
+ Known issues log acknowledged
+
+14) Change Log and Next Steps
+14.1 Change Log (Commissioning Evidence)
+
+Proxmox VE installed and validated on Debian 13
+
+Network bridge vmbr0 configured on eno1
+
+Management IP confirmed: 10.0.0.250/24
+
+Internet reachability validated (ping 1.1.1.1)
+
+DNS resolution validated (getent hosts deb.debian.org)
+
+Enterprise repo update failures observed (401 Unauthorized)
+
+Git not installed at time of initial repo push attempt
+
+14.2 Next Steps
+
+Disable Proxmox enterprise repo and enable pve-no-subscription
+
+Install git and publish runbook repo
+
+Deploy a monitoring VM (Prometheus/Grafana)
+
+Deploy PBS and configure retention
+
+Finalize Wazuh manager endpoint and onboard host
+
+15) Known Issues & Fixes (Explicit)
+Issue 1: DNS Resolution Failure (“Temporary failure resolving deb.debian.org”)
+
+Observed earlier when resolver pointed to 127.0.0.1.
+Current state: resolver is now 192.168.100.1 and 1.1.1.1 and DNS resolution is working (getent hosts deb.debian.org returns IPv6 entries).
+
+Fix (standard)
+
+cp -a /etc/resolv.conf /etc/resolv.conf.bak.$(date +%F_%H%M%S)
+cat >/etc/resolv.conf <<'EOF'
+nameserver 192.168.100.1
+nameserver 1.1.1.1
+EOF
+getent hosts deb.debian.org
+
+Issue 2: Proxmox Enterprise Repo 401 Unauthorized
+
+Observed
+
+Err: https://enterprise.proxmox.com/... 401 Unauthorized
+
+
+Fix
+
+for f in /etc/apt/sources.list /etc/apt/sources.list.d/*.list; do
+  [ -f "$f" ] || continue
+  cp -a "$f" "$f.bak.$(date +%F_%H%M%S)"
+  sed -i 's|^\s*deb\s\+https://enterprise\.proxmox\.com|# deb https://enterprise.proxmox.com|g' "$f"
+done
+
+cat >/etc/apt/sources.list.d/pve-no-subscription.list <<'EOF'
+deb http://download.proxmox.com/debian/pve trixie pve-no-subscription
+EOF
+
+apt update
+
+Issue 3: LXC Debian 13 Template Unsupported (“unsupported debian version '13.1'”)
+
+Fix (recommended): use Debian 12 template
+
+pveam update
+pveam download local debian-12-standard_*.tar.zst
+
+pct create 100 local:vztmpl/debian-12-standard_*.tar.zst \
+  --hostname bda-ct100 --cores 2 --memory 2048 --swap 512 \
+  --rootfs local-lvm:16 \
+  --net0 name=eth0,bridge=vmbr0,ip=dhcp \
+  --unprivileged 1 --features nesting=1
+
+Issue 4: Git commands failed (“git: command not found”)
+
+Observed: Git repository initialization/push attempts failed because git was not installed.
+
+Fix
+
+apt update
+apt install -y git
+git --version
+
+16) GitHub Publishing SOP (ACkc250 Repo)
+16.1 Install Git
+apt update
+apt install -y git ca-certificates
+git --version
+
+16.2 Create Repo Folder (recommended outside /etc)
+mkdir -p /root/ACkc250
+cd /root/ACkc250
+
+16.3 Create README and commit
+cat >README.md <<'EOF'
+# ACkc250
+
+Proxmox VE 9 As-Built + Runbook for BDA Node 250 (pve / 10.0.0.250).
+EOF
+
+git init
+git add README.md
+git commit -m "Initial commit: add README"
+git branch -M main
+
+16.4 Add remote + push
+git remote add origin https://github.com/chigoziephilipu/ACkc250.git
+git push -u origin main
+
+
+Why:
+
+Keeps client documentation versioned, reviewable, and auditable.
+
+17) Copy/Paste Command Bundle (Full Setup Script)
+
+This bundle validates the system, fixes DNS, fixes Proxmox repos, installs git, updates packages safely, creates a Debian 12 LXC, prepares a Wazuh agent hook, and prepares PBS storage configuration notes.
+
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "=== (1) Validate system identity & versions ==="
+hostname
+uname -a
+cat /etc/os-release
+pveversion -v
+
+echo "=== (2) Validate resources ==="
+pvesh get /nodes || true
+pvesh get /nodes/$(hostname)/status || true
+free -h
+df -h
+lsblk
+
+echo "=== (3) Validate networking ==="
+ip -br link
+ip -br addr
+ip r
+bridge link
+ip neigh || true
+ethtool eno1 | egrep -i 'link detected|speed|duplex' || true
+
+echo "=== (4) L3 reachability + DNS resolution ==="
+ping -c 3 10.0.0.1
+ping -c 3 1.1.1.1
+getent hosts deb.debian.org || true
+getent hosts enterprise.proxmox.com || true
+echo "--- /etc/resolv.conf ---"
+cat /etc/resolv.conf
+
+echo "=== (5) Fix enterprise repo 401: disable enterprise + enable no-subscription ==="
+for f in /etc/apt/sources.list /etc/apt/sources.list.d/*.list; do
+  [ -f "$f" ] || continue
+  cp -a "$f" "$f.bak.$(date +%F_%H%M%S)"
+  sed -i 's|^\s*deb\s\+https://enterprise\.proxmox\.com|# deb https://enterprise.proxmox.com|g' "$f"
+done
+
+cat >/etc/apt/sources.list.d/pve-no-subscription.list <<'EOF'
+deb http://download.proxmox.com/debian/pve trixie pve-no-subscription
+EOF
+
+echo "=== (6) Update packages safely ==="
+apt clean
+apt update
+apt -y full-upgrade
+
+echo "=== (7) Install git (fix: git command not found) ==="
+apt install -y git ca-certificates
+git --version
+
+echo "=== (8) Download Debian 12 LXC template ==="
+pveam update
+TEMPLATE="$(pveam available | awk '/debian-12-standard/ {print $2}' | tail -n 1 || true)"
+if [[ -z "${TEMPLATE}" ]]; then
+  echo "ERROR: Could not locate debian-12-standard template."
+  pveam available | grep -i debian || true
+  exit 1
+fi
+echo "Using template: ${TEMPLATE}"
+pveam download local "${TEMPLATE}"
+
+echo "=== (9) Create Debian 12 LXC (CTID 100) ==="
+pct destroy 100 2>/dev/null || true
+rm -f /etc/pve/lxc/100.conf 2>/dev/null || true
+
+pct create 100 "local:vztmpl/${TEMPLATE}" \
+  --hostname bda-ct100 \
+  --cores 2 \
+  --memory 2048 \
+  --swap 512 \
+  --rootfs local-lvm:16 \
+  --net0 name=eth0,bridge=vmbr0,ip=dhcp \
+  --unprivileged 1 \
+  --features nesting=1
+
+pct start 100
+pct status 100
+
+echo "=== (10) Prepare Wazuh agent install hook ==="
+cat >/root/wazuh-agent-install.sh <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+WAZUH_MANAGER_IP="${1:-10.0.0.20}"
+echo "[*] Wazuh agent install hook placeholder. Manager: ${WAZUH_MANAGER_IP}"
+echo "[!] Update this script with official Wazuh agent steps for Debian 13."
+exit 0
+EOF
+chmod +x /root/wazuh-agent-install.sh
+
+echo "=== (11) Prepare PBS storage add template ==="
+cat >/root/pbs-add-storage.txt <<'EOF'
+# Replace values and run once Proxmox Backup Server (PBS) is deployed:
+# pvesm add pbs pbs1 \
+#   --server 10.0.0.20 \
+#   --datastore backups \
+#   --username 'root@pam' \
+#   --password 'YOUR_PASSWORD' \
+#   --fingerprint 'PBS_FINGERPRINT' \
+#   --content backup
+EOF
+
+echo "=== COMPLETE ==="
+echo "LXC access: pct enter 100"
+echo "Wazuh hook: /root/wazuh-agent-install.sh"
+echo "PBS template: /root/pbs-add-storage.txt"
+
+Appendix A: Custom MOTD (As-Built)
+
+File: /etc/motd
+
+Welcome To Kaycee's business digital assistant 250
+
+BDA it's your 24/7 self-hosted operations team, 
+
+running quietly in the corner of your office on hardware that costs less than your monthly SaaS bill.
+
+Think of it as your private cloud:
+
+Secure Email
+Full-featured email server with encryption and spam filtering.
+
+File Storage
+Secure document storage with version control and sharing.
+
+Automation
+Visual workflow automation to connect your business tools.
+
+Backups & Security
+Automated backups and security monitoring for peace of mind.
+
+More info at: www.businessdigitalassistant.com
+
+Appendix B: Operator Notes (Terminal Mistypes Observed)
+
+During commissioning, a bracketed paste artifact occurred:
+
+-bash: $'\E[200~uname': command not found
+
+
+Fix: press Enter, re-run uname -a, or disable bracketed paste in terminal settings if needed.
