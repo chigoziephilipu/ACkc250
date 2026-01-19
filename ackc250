@@ -1,0 +1,731 @@
+Linux pve 6.14.8-2-pve #1 SMP PREEMPT_DYNAMIC PMX 6.14.8-2 (2025-07-22T10:04Z) x86_64
+
+The programs included with the Debian GNU/Linux system are free software;
+the exact distribution terms for each program are described in the
+individual files in /usr/share/doc/*/copyright.
+
+Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent
+permitted by applicable law.
+root@pve:~# 
+root@pve:~# 
+root@pve:~# ls
+root@pve:~# pwd
+/root
+root@pve:~# cd /etc/
+root@pve:/etc# ls
+adduser.conf            console-setup        depmod.d      group-           inputrc         locale.conf     mke2fs.conf     pam.conf    rc2.d             security       subuid-                vconsole.conf
+aliases                 corosync             dhcp          grub.d           insserv.conf.d  locale.gen      modprobe.d      pam.d       rc3.d             selinux        sudoers.d              vim
+alternatives            credstore            dhcpcd.conf   gshadow          iproute2        localtime       modules         passwd      rc4.d             sensors3.conf  supercat               vulkan
+apparmor                credstore.encrypted  dpkg          gshadow-         iscsi           logcheck        modules-load.d  passwd-     rc5.d             sensors.d      sv                     vzdump.conf
+apparmor.d              cron.d               e2scrub.conf  gss              issue           login.defs      motd            perl        rc6.d             services       swtpm-localca.conf     wgetrc
+apt                     cron.daily           environment   hdparm.conf      issue.net       logrotate.conf  mtab            postfix     rcS.d             shadow         swtpm-localca.options  X11
+bash.bashrc             cron.hourly          ethertypes    host.conf        kernel          logrotate.d     nanorc          ppp         reportbug.conf    shadow-        swtpm_setup.conf       xattr.conf
+bash_completion         cron.monthly         fdmount.conf  hostid           keyutils        lvm             netconfig       profile     request-key.conf  shells         sysctl.d               xdg
+bash_completion.d       crontab              fonts         hostname         ksmtuned.conf   lxc             network         profile.d   request-key.d     skel           systemd                zfs
+bindresvport.blacklist  cron.weekly          frr           hosts            kvm             machine-id      networks        protocols   resolv.conf       smartd.conf    terminfo
+binfmt.d                cron.yearly          fstab         hosts.allow      ld.so.cache     magic           nfs.conf        pulse       resolvconf        smartmontools  timezone
+ca-certificates         dbus-1               fuse.conf     hosts.deny       ld.so.conf      magic.mime      nfs.conf.d      pve         rmt               ssh            tmpfiles.d
+ca-certificates.conf    debconf.conf         gai.conf      idmapd.conf      ld.so.conf.d    mail.rc         nftables.conf   python3     rpc               ssl            ucf.conf
+ceph                    debian_version       gprofng.rc    init.d           libaudit.conf   manpath.config  nsswitch.conf   python3.13  rsyslog.d         subgid         udev
+chrony                  default              groff         initramfs        libnl-3         mediaprm        opt             rc0.d       runit             subgid-        ufw
+cifs-utils              deluser.conf         group         initramfs-tools  locale.alias    mime.types      os-release      rc1.d       samba             subuid         update-motd.d
+root@pve:/etc# cat motd
+
+The programs included with the Debian GNU/Linux system are free software;
+the exact distribution terms for each program are described in the
+individual files in /usr/share/doc/*/copyright.
+
+Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent
+permitted by applicable law.
+root@pve:/etc# nano motd 
+root@pve:/etc# 
+root@pve:/etc# 
+root@pve:/etc# 
+root@pve:/etc# cat motd
+Welcome To Kaycee's business digital assistant 250
+
+BDA it's your 24/7 self-hosted operations team, 
+
+running quietly in the corner of your office on hardware that costs less than your monthly SaaS bill.
+
+Think of it as your private cloud:
+
+Secure Email
+Full-featured email server with encryption and spam filtering.
+
+File Storage
+Secure document storage with version control and sharing.
+
+Automation
+Visual workflow automation to connect your business tools.
+
+Backups & Security
+Automated backups and security monitoring for peace of mind.
+
+More info at: www.businessdigitalassistant.com
+root@pve:/etc# pveversion -v
+proxmox-ve: 9.0.0 (running kernel: 6.14.8-2-pve)
+pve-manager: 9.0.3 (running version: 9.0.3/025864202ebb6109)
+proxmox-kernel-helper: 9.0.3
+proxmox-kernel-6.14.8-2-pve-signed: 6.14.8-2
+proxmox-kernel-6.14: 6.14.8-2
+ceph-fuse: 19.2.3-pve1
+corosync: 3.1.9-pve2
+criu: 4.1.1-1
+frr-pythontools: 10.3.1-1+pve4
+ifupdown2: 3.3.0-1+pmx9
+intel-microcode: 3.20250512.1
+ksm-control-daemon: 1.5-1
+libjs-extjs: 7.0.0-5
+libproxmox-acme-perl: 1.7.0
+libproxmox-backup-qemu0: 2.0.1
+libproxmox-rs-perl: 0.4.1
+libpve-access-control: 9.0.3
+libpve-apiclient-perl: 3.4.0
+libpve-cluster-api-perl: 9.0.6
+libpve-cluster-perl: 9.0.6
+libpve-common-perl: 9.0.9
+libpve-guest-common-perl: 6.0.2
+libpve-http-server-perl: 6.0.3
+libpve-network-perl: 1.1.6
+libpve-rs-perl: 0.10.7
+libpve-storage-perl: 9.0.13
+libspice-server1: 0.15.2-1+b1
+lvm2: 2.03.31-2
+lxc-pve: 6.0.4-2
+lxcfs: 6.0.4-pve1
+novnc-pve: 1.6.0-3
+proxmox-backup-client: 4.0.9-1
+proxmox-backup-file-restore: 4.0.9-1
+proxmox-backup-restore-image: 1.0.0
+proxmox-firewall: 1.1.1
+proxmox-kernel-helper: 9.0.3
+proxmox-mail-forward: 1.0.2
+proxmox-mini-journalreader: 1.6
+proxmox-offline-mirror-helper: 0.7.0
+proxmox-widget-toolkit: 5.0.4
+pve-cluster: 9.0.6
+pve-container: 6.0.9
+pve-docs: 9.0.7
+pve-edk2-firmware: 4.2025.02-4
+pve-esxi-import-tools: 1.0.1
+pve-firewall: 6.0.3
+pve-firmware: 3.16-3
+pve-ha-manager: 5.0.4
+pve-i18n: 3.5.2
+pve-qemu-kvm: 10.0.2-4
+pve-xtermjs: 5.5.0-2
+qemu-server: 9.0.16
+smartmontools: 7.4-pve1
+spiceterm: 3.4.0
+swtpm: 0.8.0+pve2
+vncterm: 1.9.0
+zfsutils-linux: 2.3.3-pve1
+root@pve:/etc# uname -a
+Linux pve 6.14.8-2-pve #1 SMP PREEMPT_DYNAMIC PMX 6.14.8-2 (2025-07-22T10:04Z) x86_64 GNU/Linux
+root@pve:/etc# cat /etc/os-release
+PRETTY_NAME="Debian GNU/Linux 13 (trixie)"
+NAME="Debian GNU/Linux"
+VERSION_ID="13"
+VERSION="13 (trixie)"
+VERSION_CODENAME=trixie
+DEBIAN_VERSION_FULL=13.0
+ID=debian
+HOME_URL="https://www.debian.org/"
+SUPPORT_URL="https://www.debian.org/support"
+BUG_REPORT_URL="https://bugs.debian.org/"
+root@pve:/etc# pvesh get /nodes
+pvesh get /nodes/$(hostname)/status
+free -h
+lsblk
+┌──────┬────────┬───────┬───────┬────────┬──────────┬──────────┬──────────────────────────────────────────
+│ node │ status │   cpu │ level │ maxcpu │   maxmem │      mem │ ssl_fingerprint                          
+╞══════╪════════╪═══════╪═══════╪════════╪══════════╪══════════╪══════════════════════════════════════════
+│ pve  │ online │ 0.47% │       │      4 │ 7.64 GiB │ 1.50 GiB │ 74:99:91:A9:4B:91:93:97:D5:30:FF:73:F5:67
+└──────┴────────┴───────┴───────┴────────┴──────────┴──────────┴──────────────────────────────────────────
+┌────────────────┬────────────────────────────────────────────────────────────────────────────────────────
+│ key            │ value                                                                                  
+╞════════════════╪════════════════════════════════════════════════════════════════════════════════════════
+│ boot-info      │ {"mode":"legacy-bios"}                                                                 
+├────────────────┼────────────────────────────────────────────────────────────────────────────────────────
+│ cpu            │ 0                                                                                      
+├────────────────┼────────────────────────────────────────────────────────────────────────────────────────
+│ cpuinfo        │ {"cores":2,"cpus":4,"flags":"fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca c
+├────────────────┼────────────────────────────────────────────────────────────────────────────────────────
+│ current-kernel │ {"machine":"x86_64","release":"6.14.8-2-pve","sysname":"Linux","version":"#1 SMP PREEMP
+├────────────────┼────────────────────────────────────────────────────────────────────────────────────────
+│ loadavg        │ ["0.00","0.00","0.00"]                                                                 
+├────────────────┼────────────────────────────────────────────────────────────────────────────────────────
+│ memory         │ {"available":6412521472,"free":5940084736,"total":8204242944,"used":1791721472}        
+├────────────────┼────────────────────────────────────────────────────────────────────────────────────────
+│ pveversion     │ pve-manager/9.0.3/025864202ebb6109                                                     
+├────────────────┼────────────────────────────────────────────────────────────────────────────────────────
+│ rootfs         │ {"avail":91971092480,"free":97141829632,"total":100861726720,"used":3719897088}        
+└────────────────┴────────────────────────────────────────────────────────────────────────────────────────
+               total        used        free      shared  buff/cache   available
+Mem:           7.6Gi       1.7Gi       5.5Gi        52Mi       746Mi       6.0Gi
+Swap:          7.6Gi          0B       7.6Gi
+NAME                 MAJ:MIN RM   SIZE RO TYPE MOUNTPOINTS
+sda                    8:0    0 465.8G  0 disk 
+├─sda1                 8:1    0  1007K  0 part 
+├─sda2                 8:2    0     1G  0 part 
+└─sda3                 8:3    0 464.8G  0 part 
+  ├─pve-swap         252:0    0   7.6G  0 lvm  [SWAP]
+  ├─pve-root         252:1    0    96G  0 lvm  /
+  ├─pve-data_tmeta   252:2    0   3.4G  0 lvm  
+  │ └─pve-data-tpool 252:4    0 338.2G  0 lvm  
+  │   └─pve-data     252:5    0 338.2G  1 lvm  
+  └─pve-data_tdata   252:3    0 338.2G  0 lvm  
+    └─pve-data-tpool 252:4    0 338.2G  0 lvm  
+      └─pve-data     252:5    0 338.2G  1 lvm  
+sdb                    8:16   1  59.5G  0 disk 
+├─sdb1                 8:17   1  59.4G  0 part 
+└─sdb2                 8:18   1    32M  0 part 
+sr0                   11:0    1   7.2G  0 rom  
+root@pve:/etc# 
+root@pve:/etc# 
+root@pve:/etc# 
+root@pve:/etc# ip -br link
+ip -br addr
+ip r
+brctl show 2>/dev/null || true
+bridge link
+lo               UNKNOWN        00:00:00:00:00:00 <LOOPBACK,UP,LOWER_UP> 
+eno1             UP             d4:be:d9:35:5d:43 <BROADCAST,MULTICAST,UP,LOWER_UP> 
+vmbr0            UP             d4:be:d9:35:5d:43 <BROADCAST,MULTICAST,UP,LOWER_UP> 
+lo               UNKNOWN        127.0.0.1/8 ::1/128 
+eno1             UP             
+vmbr0            UP             10.0.0.250/24 
+default via 10.0.0.1 dev vmbr0 
+10.0.0.0/24 dev vmbr0 proto kernel scope link src 10.0.0.250 
+bridge name     bridge id               STP enabled     interfaces
+vmbr0           8000.d4bed9355d43       no              eno1
+2: eno1: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 master vmbr0 state forwarding priority 32 cost 5 
+root@pve:/etc# ethtool eno1 | egrep -i 'link detected|speed|duplex'
+        Speed: 1000Mb/s
+        Duplex: Full
+        Link detected: yes
+root@pve:/etc# ip neigh
+tcpdump -ni eno1 -c 20 'arp or (udp and (port 67 or 68))'
+10.0.0.148 dev vmbr0 lladdr e0:75:26:1b:e2:c2 REACHABLE 
+10.0.0.1 dev vmbr0 lladdr 04:4e:5a:99:d5:2f STALE 
+fe80::64e:5aff:fe99:d52f dev vmbr0 lladdr 04:4e:5a:99:d5:2f router STALE 
+tcpdump: verbose output suppressed, use -v[v]... for full protocol decode
+listening on eno1, link-type EN10MB (Ethernet), snapshot length 262144 bytes
+20:30:01.007212 ARP, Request who-has 10.0.0.250 tell 10.0.0.1, length 46
+20:30:01.007248 ARP, Reply 10.0.0.250 is-at d4:be:d9:35:5d:43, length 28
+20:30:01.123036 ARP, Request who-has 10.0.0.1 tell 10.0.0.250, length 28
+20:30:01.123897 ARP, Reply 10.0.0.1 is-at 04:4e:5a:99:d5:2f, length 46
+20:31:06.147063 ARP, Request who-has 10.0.0.1 tell 10.0.0.250, length 28
+20:31:06.148329 ARP, Reply 10.0.0.1 is-at 04:4e:5a:99:d5:2f, length 46
+20:31:19.007106 IP 10.0.0.1.68 > 255.255.255.255.67: BOOTP/DHCP, Request from 04:4e:5a:99:d5:2f, length 548
+20:31:19.012808 ARP, Request who-has 10.0.0.61 tell 10.0.0.1, length 46
+20:31:20.007148 ARP, Request who-has 10.0.0.61 tell 10.0.0.1, length 46
+20:31:21.007310 ARP, Request who-has 10.0.0.61 tell 10.0.0.1, length 46
+20:31:22.165967 IP 10.0.0.1.67 > 255.255.255.255.68: BOOTP/DHCP, Reply, length 317
+20:32:09.517038 ARP, Request who-has 10.0.0.250 tell 10.0.0.1, length 46
+20:32:09.517081 ARP, Reply 10.0.0.250 is-at d4:be:d9:35:5d:43, length 28
+20:32:09.634958 ARP, Request who-has 10.0.0.1 tell 10.0.0.250, length 28
+20:32:09.636025 ARP, Reply 10.0.0.1 is-at 04:4e:5a:99:d5:2f, length 46
+20:34:18.467094 ARP, Request who-has 10.0.0.250 tell 10.0.0.1, length 46
+20:34:18.467117 ARP, Reply 10.0.0.250 is-at d4:be:d9:35:5d:43, length 28
+20:34:18.659036 ARP, Request who-has 10.0.0.1 tell 10.0.0.250, length 28
+20:34:18.660482 ARP, Reply 10.0.0.1 is-at 04:4e:5a:99:d5:2f, length 46
+20:36:27.869902 ARP, Request who-has 10.0.0.250 tell 10.0.0.1, length 46
+20 packets captured
+21 packets received by filter
+0 packets dropped by kernel
+root@pve:/etc# 
+root@pve:/etc# 
+root@pve:/etc# 
+root@pve:/etc# 
+root@pve:/etc# ^[[200~uname -a
+-bash: $'\E[200~uname': command not found
+root@pve:/etc# cat /etc/os-release
+PRETTY_NAME="Debian GNU/Linux 13 (trixie)"
+NAME="Debian GNU/Linux"
+VERSION_ID="13"
+VERSION="13 (trixie)"
+VERSION_CODENAME=trixie
+DEBIAN_VERSION_FULL=13.0
+ID=debian
+HOME_URL="https://www.debian.org/"
+SUPPORT_URL="https://www.debian.org/support"
+BUG_REPORT_URL="https://bugs.debian.org/"
+root@pve:/etc# pveversion -v
+proxmox-ve: 9.0.0 (running kernel: 6.14.8-2-pve)
+pve-manager: 9.0.3 (running version: 9.0.3/025864202ebb6109)
+proxmox-kernel-helper: 9.0.3
+proxmox-kernel-6.14.8-2-pve-signed: 6.14.8-2
+proxmox-kernel-6.14: 6.14.8-2
+ceph-fuse: 19.2.3-pve1
+corosync: 3.1.9-pve2
+criu: 4.1.1-1
+frr-pythontools: 10.3.1-1+pve4
+ifupdown2: 3.3.0-1+pmx9
+intel-microcode: 3.20250512.1
+ksm-control-daemon: 1.5-1
+libjs-extjs: 7.0.0-5
+libproxmox-acme-perl: 1.7.0
+libproxmox-backup-qemu0: 2.0.1
+libproxmox-rs-perl: 0.4.1
+libpve-access-control: 9.0.3
+libpve-apiclient-perl: 3.4.0
+libpve-cluster-api-perl: 9.0.6
+libpve-cluster-perl: 9.0.6
+libpve-common-perl: 9.0.9
+libpve-guest-common-perl: 6.0.2
+libpve-http-server-perl: 6.0.3
+libpve-network-perl: 1.1.6
+libpve-rs-perl: 0.10.7
+libpve-storage-perl: 9.0.13
+libspice-server1: 0.15.2-1+b1
+lvm2: 2.03.31-2
+lxc-pve: 6.0.4-2
+lxcfs: 6.0.4-pve1
+novnc-pve: 1.6.0-3
+proxmox-backup-client: 4.0.9-1
+proxmox-backup-file-restore: 4.0.9-1
+proxmox-backup-restore-image: 1.0.0
+proxmox-firewall: 1.1.1
+proxmox-kernel-helper: 9.0.3
+proxmox-mail-forward: 1.0.2
+proxmox-mini-journalreader: 1.6
+proxmox-offline-mirror-helper: 0.7.0
+proxmox-widget-toolkit: 5.0.4
+pve-cluster: 9.0.6
+pve-container: 6.0.9
+pve-docs: 9.0.7
+pve-edk2-firmware: 4.2025.02-4
+pve-esxi-import-tools: 1.0.1
+pve-firewall: 6.0.3
+pve-firmware: 3.16-3
+pve-ha-manager: 5.0.4
+pve-i18n: 3.5.2
+pve-qemu-kvm: 10.0.2-4
+pve-xtermjs: 5.5.0-2
+qemu-server: 9.0.16
+smartmontools: 7.4-pve1
+spiceterm: 3.4.0
+swtpm: 0.8.0+pve2
+vncterm: 1.9.0
+zfsutils-linux: 2.3.3-pve1
+root@pve:/etc# pvesh get /nodes
+┌──────┬────────┬───────┬───────┬────────┬──────────┬──────────┬───────────────────
+│ node │ status │   cpu │ level │ maxcpu │   maxmem │      mem │ ssl_fingerprint   
+╞══════╪════════╪═══════╪═══════╪════════╪══════════╪══════════╪═══════════════════
+│ pve  │ online │ 5.26% │       │      4 │ 7.64 GiB │ 1.68 GiB │ 74:99:91:A9:4B:91:
+└──────┴────────┴───────┴───────┴────────┴──────────┴──────────┴───────────────────
+root@pve:/etc# pvesh get /nodes/$(hostname)/status
+┌────────────────┬─────────────────────────────────────────────────────────────────
+│ key            │ value                                                           
+╞════════════════╪═════════════════════════════════════════════════════════════════
+│ boot-info      │ {"mode":"legacy-bios"}                                          
+├────────────────┼─────────────────────────────────────────────────────────────────
+│ cpu            │ 0                                                               
+├────────────────┼─────────────────────────────────────────────────────────────────
+│ cpuinfo        │ {"cores":2,"cpus":4,"flags":"fpu vme de pse tsc msr pae mce cx8 
+├────────────────┼─────────────────────────────────────────────────────────────────
+│ current-kernel │ {"machine":"x86_64","release":"6.14.8-2-pve","sysname":"Linux","
+├────────────────┼─────────────────────────────────────────────────────────────────
+│ loadavg        │ ["0.00","0.00","0.00"]                                          
+├────────────────┼─────────────────────────────────────────────────────────────────
+│ memory         │ {"available":6335492096,"free":5860241408,"total":8204242944,"us
+├────────────────┼─────────────────────────────────────────────────────────────────
+│ pveversion     │ pve-manager/9.0.3/025864202ebb6109                              
+├────────────────┼─────────────────────────────────────────────────────────────────
+│ rootfs         │ {"avail":91970899968,"free":97141637120,"total":100861726720,"us
+└────────────────┴─────────────────────────────────────────────────────────────────
+root@pve:/etc# ~^C
+root@pve:/etc# ^C
+root@pve:/etc# ^C
+root@pve:/etc# ^C
+root@pve:/etc# 
+root@pve:/etc# 
+root@pve:/etc# 
+root@pve:/etc# uname -a
+cat /etc/os-release
+pveversion -v
+pvesh get /nodes
+pvesh get /nodes/$(hostname)/status
+Linux pve 6.14.8-2-pve #1 SMP PREEMPT_DYNAMIC PMX 6.14.8-2 (2025-07-22T10:04Z) x86_64 GNU/Linux
+PRETTY_NAME="Debian GNU/Linux 13 (trixie)"
+NAME="Debian GNU/Linux"
+VERSION_ID="13"
+VERSION="13 (trixie)"
+VERSION_CODENAME=trixie
+DEBIAN_VERSION_FULL=13.0
+ID=debian
+HOME_URL="https://www.debian.org/"
+SUPPORT_URL="https://www.debian.org/support"
+BUG_REPORT_URL="https://bugs.debian.org/"
+proxmox-ve: 9.0.0 (running kernel: 6.14.8-2-pve)
+pve-manager: 9.0.3 (running version: 9.0.3/025864202ebb6109)
+proxmox-kernel-helper: 9.0.3
+proxmox-kernel-6.14.8-2-pve-signed: 6.14.8-2
+proxmox-kernel-6.14: 6.14.8-2
+ceph-fuse: 19.2.3-pve1
+corosync: 3.1.9-pve2
+criu: 4.1.1-1
+frr-pythontools: 10.3.1-1+pve4
+ifupdown2: 3.3.0-1+pmx9
+intel-microcode: 3.20250512.1
+ksm-control-daemon: 1.5-1
+libjs-extjs: 7.0.0-5
+libproxmox-acme-perl: 1.7.0
+libproxmox-backup-qemu0: 2.0.1
+libproxmox-rs-perl: 0.4.1
+libpve-access-control: 9.0.3
+libpve-apiclient-perl: 3.4.0
+libpve-cluster-api-perl: 9.0.6
+libpve-cluster-perl: 9.0.6
+libpve-common-perl: 9.0.9
+libpve-guest-common-perl: 6.0.2
+libpve-http-server-perl: 6.0.3
+libpve-network-perl: 1.1.6
+libpve-rs-perl: 0.10.7
+libpve-storage-perl: 9.0.13
+libspice-server1: 0.15.2-1+b1
+lvm2: 2.03.31-2
+lxc-pve: 6.0.4-2
+lxcfs: 6.0.4-pve1
+novnc-pve: 1.6.0-3
+proxmox-backup-client: 4.0.9-1
+proxmox-backup-file-restore: 4.0.9-1
+proxmox-backup-restore-image: 1.0.0
+proxmox-firewall: 1.1.1
+proxmox-kernel-helper: 9.0.3
+proxmox-mail-forward: 1.0.2
+proxmox-mini-journalreader: 1.6
+proxmox-offline-mirror-helper: 0.7.0
+proxmox-widget-toolkit: 5.0.4
+pve-cluster: 9.0.6
+pve-container: 6.0.9
+pve-docs: 9.0.7
+pve-edk2-firmware: 4.2025.02-4
+pve-esxi-import-tools: 1.0.1
+pve-firewall: 6.0.3
+pve-firmware: 3.16-3
+pve-ha-manager: 5.0.4
+pve-i18n: 3.5.2
+pve-qemu-kvm: 10.0.2-4
+pve-xtermjs: 5.5.0-2
+qemu-server: 9.0.16
+smartmontools: 7.4-pve1
+spiceterm: 3.4.0
+swtpm: 0.8.0+pve2
+vncterm: 1.9.0
+zfsutils-linux: 2.3.3-pve1
+┌──────┬────────┬───────┬───────┬────────┬──────────┬──────────┬───────────────────
+│ node │ status │   cpu │ level │ maxcpu │   maxmem │      mem │ ssl_fingerprint   
+╞══════╪════════╪═══════╪═══════╪════════╪══════════╪══════════╪═══════════════════
+│ pve  │ online │ 5.28% │       │      4 │ 7.64 GiB │ 1.54 GiB │ 74:99:91:A9:4B:91:
+└──────┴────────┴───────┴───────┴────────┴──────────┴──────────┴───────────────────
+┌────────────────┬─────────────────────────────────────────────────────────────────
+│ key            │ value                                                           
+╞════════════════╪═════════════════════════════════════════════════════════════════
+│ boot-info      │ {"mode":"legacy-bios"}                                          
+├────────────────┼─────────────────────────────────────────────────────────────────
+│ cpu            │ 0                                                               
+├────────────────┼─────────────────────────────────────────────────────────────────
+│ cpuinfo        │ {"cores":2,"cpus":4,"flags":"fpu vme de pse tsc msr pae mce cx8 
+├────────────────┼─────────────────────────────────────────────────────────────────
+│ current-kernel │ {"machine":"x86_64","release":"6.14.8-2-pve","sysname":"Linux","
+├────────────────┼─────────────────────────────────────────────────────────────────
+│ loadavg        │ ["0.08","0.02","0.01"]                                          
+├────────────────┼─────────────────────────────────────────────────────────────────
+│ memory         │ {"available":6432501760,"free":5957214208,"total":8204242944,"us
+├────────────────┼─────────────────────────────────────────────────────────────────
+│ pveversion     │ pve-manager/9.0.3/025864202ebb6109                              
+├────────────────┼─────────────────────────────────────────────────────────────────
+│ rootfs         │ {"avail":91970895872,"free":97141633024,"total":100861726720,"us
+└────────────────┴─────────────────────────────────────────────────────────────────
+root@pve:/etc# uname -a
+cat /etc/os-release
+pveversion -v
+pvesh get /nodes
+pvesh get /nodes/$(hostname)/status
+\Linux pve 6.14.8-2-pve #1 SMP PREEMPT_DYNAMIC PMX 6.14.8-2 (2025-07-22T10:04Z) x86_64 GNU/Linux
+PRETTY_NAME="Debian GNU/Linux 13 (trixie)"
+NAME="Debian GNU/Linux"
+VERSION_ID="13"
+VERSION="13 (trixie)"
+VERSION_CODENAME=trixie
+DEBIAN_VERSION_FULL=13.0
+ID=debian
+HOME_URL="https://www.debian.org/"
+SUPPORT_URL="https://www.debian.org/support"
+BUG_REPORT_URL="https://bugs.debian.org/"
+proxmox-ve: 9.0.0 (running kernel: 6.14.8-2-pve)
+pve-manager: 9.0.3 (running version: 9.0.3/025864202ebb6109)
+proxmox-kernel-helper: 9.0.3
+proxmox-kernel-6.14.8-2-pve-signed: 6.14.8-2
+proxmox-kernel-6.14: 6.14.8-2
+ceph-fuse: 19.2.3-pve1
+corosync: 3.1.9-pve2
+criu: 4.1.1-1
+frr-pythontools: 10.3.1-1+pve4
+ifupdown2: 3.3.0-1+pmx9
+intel-microcode: 3.20250512.1
+ksm-control-daemon: 1.5-1
+libjs-extjs: 7.0.0-5
+libproxmox-acme-perl: 1.7.0
+libproxmox-backup-qemu0: 2.0.1
+libproxmox-rs-perl: 0.4.1
+libpve-access-control: 9.0.3
+libpve-apiclient-perl: 3.4.0
+libpve-cluster-api-perl: 9.0.6
+libpve-cluster-perl: 9.0.6
+libpve-common-perl: 9.0.9
+libpve-guest-common-perl: 6.0.2
+libpve-http-server-perl: 6.0.3
+libpve-network-perl: 1.1.6
+libpve-rs-perl: 0.10.7
+libpve-storage-perl: 9.0.13
+libspice-server1: 0.15.2-1+b1
+lvm2: 2.03.31-2
+lxc-pve: 6.0.4-2
+lxcfs: 6.0.4-pve1
+novnc-pve: 1.6.0-3
+proxmox-backup-client: 4.0.9-1
+proxmox-backup-file-restore: 4.0.9-1
+proxmox-backup-restore-image: 1.0.0
+proxmox-firewall: 1.1.1
+proxmox-kernel-helper: 9.0.3
+proxmox-mail-forward: 1.0.2
+proxmox-mini-journalreader: 1.6
+proxmox-offline-mirror-helper: 0.7.0
+proxmox-widget-toolkit: 5.0.4
+pve-cluster: 9.0.6
+pve-container: 6.0.9
+pve-docs: 9.0.7
+pve-edk2-firmware: 4.2025.02-4
+pve-esxi-import-tools: 1.0.1
+pve-firewall: 6.0.3
+pve-firmware: 3.16-3
+pve-ha-manager: 5.0.4
+pve-i18n: 3.5.2
+pve-qemu-kvm: 10.0.2-4
+pve-xtermjs: 5.5.0-2
+qemu-server: 9.0.16
+smartmontools: 7.4-pve1
+spiceterm: 3.4.0
+swtpm: 0.8.0+pve2
+vncterm: 1.9.0
+zfsutils-linux: 2.3.3-pve1
+┌──────┬────────┬───────┬───────┬────────┬──────────┬──────────┬───────────────────
+│ node │ status │   cpu │ level │ maxcpu │   maxmem │      mem │ ssl_fingerprint   
+╞══════╪════════╪═══════╪═══════╪════════╪══════════╪══════════╪═══════════════════
+│ pve  │ online │ 0.57% │       │      4 │ 7.64 GiB │ 1.50 GiB │ 74:99:91:A9:4B:91:
+└──────┴────────┴───────┴───────┴────────┴──────────┴──────────┴───────────────────
+┌────────────────┬─────────────────────────────────────────────────────────────────
+│ key            │ value                                                           
+╞════════════════╪═════════════════════════════════════════════════════════════════
+│ boot-info      │ {"mode":"legacy-bios"}                                          
+├────────────────┼─────────────────────────────────────────────────────────────────
+│ cpu            │ 0                                                               
+├────────────────┼─────────────────────────────────────────────────────────────────
+│ cpuinfo        │ {"cores":2,"cpus":4,"flags":"fpu vme de pse tsc msr pae mce cx8 
+├────────────────┼─────────────────────────────────────────────────────────────────
+│ current-kernel │ {"machine":"x86_64","release":"6.14.8-2-pve","sysname":"Linux","
+├────────────────┼─────────────────────────────────────────────────────────────────
+│ loadavg        │ ["0.13","0.03","0.01"]                                          
+├────────────────┼─────────────────────────────────────────────────────────────────
+│ memory         │ {"available":6427865088,"free":5952540672,"total":8204242944,"us
+├────────────────┼─────────────────────────────────────────────────────────────────
+│ pveversion     │ pve-manager/9.0.3/025864202ebb6109                              
+├────────────────┼─────────────────────────────────────────────────────────────────
+│ rootfs         │ {"avail":91970891776,"free":97141628928,"total":100861726720,"us
+└────────────────┴─────────────────────────────────────────────────────────────────
+root@pve:/etc# \ip -br link
+ip -br addr
+ip r
+bridge link
+ip neigh
+ethtool eno1 | egrep -i 'link detected|speed|duplex'
+lo               UNKNOWN        00:00:00:00:00:00 <LOOPBACK,UP,LOWER_UP> 
+eno1             UP             d4:be:d9:35:5d:43 <BROADCAST,MULTICAST,UP,LOWER_UP> 
+vmbr0            UP             d4:be:d9:35:5d:43 <BROADCAST,MULTICAST,UP,LOWER_UP> 
+lo               UNKNOWN        127.0.0.1/8 ::1/128 
+eno1             UP             
+vmbr0            UP             10.0.0.250/24 
+default via 10.0.0.1 dev vmbr0 
+10.0.0.0/24 dev vmbr0 proto kernel scope link src 10.0.0.250 
+2: eno1: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 master vmbr0 state forwarding priority 32 cost 5 
+10.0.0.148 dev vmbr0 lladdr e0:75:26:1b:e2:c2 REACHABLE 
+10.0.0.1 dev vmbr0 lladdr 04:4e:5a:99:d5:2f STALE 
+fe80::64e:5aff:fe99:d52f dev vmbr0 lladdr 04:4e:5a:99:d5:2f router STALE 
+        Speed: 1000Mb/s
+        Duplex: Full
+        Link detected: yes
+root@pve:/etc# # L3 reachability
+ping -c 3 10.0.0.1
+ping -c 3 1.1.1.1
+
+# DNS resolution
+getent hosts deb.debian.org
+getent hosts enterprise.proxmox.com
+
+# Confirm resolver used
+cat /etc/resolv.conf
+PING 10.0.0.1 (10.0.0.1) 56(84) bytes of data.
+64 bytes from 10.0.0.1: icmp_seq=1 ttl=64 time=2.94 ms
+64 bytes from 10.0.0.1: icmp_seq=2 ttl=64 time=2.63 ms
+64 bytes from 10.0.0.1: icmp_seq=3 ttl=64 time=1.79 ms
+
+--- 10.0.0.1 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2003ms
+rtt min/avg/max/mdev = 1.786/2.454/2.944/0.489 ms
+PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
+64 bytes from 1.1.1.1: icmp_seq=1 ttl=58 time=11.5 ms
+64 bytes from 1.1.1.1: icmp_seq=2 ttl=58 time=14.1 ms
+64 bytes from 1.1.1.1: icmp_seq=3 ttl=58 time=12.6 ms
+
+--- 1.1.1.1 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2003ms
+rtt min/avg/max/mdev = 11.469/12.744/14.120/1.084 ms
+2a04:4e42::644  debian.map.fastlydns.net deb.debian.org
+2a04:4e42:200::644 debian.map.fastlydns.net deb.debian.org
+2a04:4e42:400::644 debian.map.fastlydns.net deb.debian.org
+2a04:4e42:600::644 debian.map.fastlydns.net deb.debian.org
+2607:5300:400:7d00::80 na.cdn.proxmox.com enterprise.proxmox.com enterprise.cdn.proxmox.com us.na.cdn.proxmox.com
+nameserver 192.168.100.1
+nameserver 1.1.1.1
+root@pve:/etc# ip neigh show | egrep '10\.0\.0\.1|10\.0\.0\.250'
+arp -n 2>/dev/null || true
+10.0.0.148 dev vmbr0 lladdr e0:75:26:1b:e2:c2 REACHABLE 
+10.0.0.1 dev vmbr0 lladdr 04:4e:5a:99:d5:2f STALE 
+root@pve:/etc# tcpdump -ni eno1 -c 20 'arp or (udp and (port 67 or 68))'
+tcpdump: verbose output suppressed, use -v[v]... for full protocol decode
+listening on eno1, link-type EN10MB (Ethernet), snapshot length 262144 bytes
+20:53:41.551446 ARP, Request who-has 10.0.0.250 tell 10.0.0.1, length 46
+20:53:41.551491 ARP, Reply 10.0.0.250 is-at d4:be:d9:35:5d:43, length 28
+20:53:41.923033 ARP, Request who-has 10.0.0.1 tell 10.0.0.250, length 28
+20:53:41.924475 ARP, Reply 10.0.0.1 is-at 04:4e:5a:99:d5:2f, length 46
+20:55:53.436586 ARP, Request who-has 10.0.0.250 tell 10.0.0.1, length 46
+20:55:53.436629 ARP, Reply 10.0.0.250 is-at d4:be:d9:35:5d:43, length 28
+20:55:53.507033 ARP, Request who-has 10.0.0.1 tell 10.0.0.250, length 28
+20:55:53.508096 ARP, Reply 10.0.0.1 is-at 04:4e:5a:99:d5:2f, length 46
+20:57:59.872367 ARP, Request who-has 10.0.0.250 tell 10.0.0.1, length 46
+20:57:59.872409 ARP, Reply 10.0.0.250 is-at d4:be:d9:35:5d:43, length 28
+20:57:59.971032 ARP, Request who-has 10.0.0.1 tell 10.0.0.250, length 28
+20:57:59.972248 ARP, Reply 10.0.0.1 is-at 04:4e:5a:99:d5:2f, length 46
+20:58:56.291038 ARP, Request who-has 10.0.0.1 tell 10.0.0.250, length 28
+20:58:56.292651 ARP, Reply 10.0.0.1 is-at 04:4e:5a:99:d5:2f, length 46
+20:59:01.442581 ARP, Request who-has 10.0.0.250 tell 10.0.0.1, length 46
+20:59:01.442623 ARP, Reply 10.0.0.250 is-at d4:be:d9:35:5d:43, length 28
+21:00:11.852686 ARP, Request who-has 10.0.0.250 tell 10.0.0.1, length 46
+21:00:11.852720 ARP, Reply 10.0.0.250 is-at d4:be:d9:35:5d:43, length 28
+21:00:12.067042 ARP, Request who-has 10.0.0.1 tell 10.0.0.250, length 28
+21:00:12.068849 ARP, Reply 10.0.0.1 is-at 04:4e:5a:99:d5:2f, length 46
+20 packets captured
+20 packets received by filter
+0 packets dropped by kernel
+root@pve:/etc# https://github.com/chigoziephilipu/ACkc250.git
+-bash: https://github.com/chigoziephilipu/ACkc250.git: No such file or directory
+root@pve:/etc# echo "# ACkc250" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git branch -M main
+git remote add origin https://github.com/chigoziephilipu/ACkc250.git
+git push -u origin main
+-bash: git: command not found
+-bash: git: command not found
+-bash: git: command not found
+-bash: git: command not found
+-bash: git: command not found
+-bash: git: command not found
+root@pve:/etc# git 
+-bash: git: command not found
+root@pve:/etc# apt update
+Hit:1 http://security.debian.org/debian-security trixie-security InRelease                                 
+Hit:2 http://deb.debian.org/debian trixie InRelease                                                        
+Hit:3 http://deb.debian.org/debian trixie-updates InRelease                   
+Err:4 https://enterprise.proxmox.com/debian/ceph-squid trixie InRelease      
+  401  Unauthorized [IP: 66.70.154.82 443]
+Err:5 https://enterprise.proxmox.com/debian/pve trixie InRelease
+  401  Unauthorized [IP: 66.70.154.82 443]
+Error: Failed to fetch https://enterprise.proxmox.com/debian/ceph-squid/dists/trixie/InRelease  401  Unauthorized [IP: 66.70.154.82 443]
+Error: The repository 'https://enterprise.proxmox.com/debian/ceph-squid trixie InRelease' is not signed.
+Notice: Updating from such a repository can't be done securely, and is therefore disabled by default.
+Notice: See apt-secure(8) manpage for repository creation and user configuration details.
+Error: Failed to fetch https://enterprise.proxmox.com/debian/pve/dists/trixie/InRelease  401  Unauthorized [IP: 66.70.154.82 443]
+Error: The repository 'https://enterprise.proxmox.com/debian/pve trixie InRelease' is not signed.
+Notice: Updating from such a repository can't be done securely, and is therefore disabled by default.
+Notice: See apt-secure(8) manpage for repository creation and user configuration details.
+root@pve:/etc# https://github.com/chigoziephilipu/ACkc250.git
+-bash: https://github.com/chigoziephilipu/ACkc250.git: No such file or directory
+root@pve:/etc# git@github.com:chigoziephilipu/ACkc250.git
+-bash: git@github.com:chigoziephilipu/ACkc250.git: No such file or directory
+root@pve:/etc# history'
+> ^C
+root@pve:/etc# history
+    1  ls
+    2  pwd
+    3  cd /etc/
+    4  ls
+    5  cat motd
+    6  nano motd 
+    7  cat motd
+    8  pveversion -v
+    9  uname -a
+   10  cat /etc/os-release
+   11  pvesh get /nodes
+   12  pvesh get /nodes/$(hostname)/status
+   13  free -h
+   14  lsblk
+   15  ip -br link
+   16  ip -br addr
+   17  ip r
+   18  brctl show 2>/dev/null || true
+   19  bridge link
+   20  ethtool eno1 | egrep -i 'link detected|speed|duplex'
+   21  ip neigh
+   22  tcpdump -ni eno1 -c 20 'arp or (udp and (port 67 or 68))'
+   23  uname -a
+   24  cat /etc/os-release
+   25  pveversion -v
+   26  pvesh get /nodes
+   27  pvesh get /nodes/$(hostname)/status
+   28  uname -a
+   29  cat /etc/os-release
+   30  pveversion -v
+   31  pvesh get /nodes
+   32  pvesh get /nodes/$(hostname)/status
+   33  uname -a
+   34  cat /etc/os-release
+   35  pveversion -v
+   36  pvesh get /nodes
+   37  pvesh get /nodes/$(hostname)/status
+   38  \ip -br link
+   39  ip -br addr
+   40  ip r
+   41  bridge link
+   42  ip neigh
+   43  ethtool eno1 | egrep -i 'link detected|speed|duplex'
+   44  # L3 reachability
+   45  ping -c 3 10.0.0.1
+   46  ping -c 3 1.1.1.1
+   47  # DNS resolution
+   48  getent hosts deb.debian.org
+   49  getent hosts enterprise.proxmox.com
+   50  # Confirm resolver used
+   51  cat /etc/resolv.conf
+   52  ip neigh show | egrep '10\.0\.0\.1|10\.0\.0\.250'
+   53  arp -n 2>/dev/null || true
+   54  tcpdump -ni eno1 -c 20 'arp or (udp and (port 67 or 68))'
+   55  https://github.com/chigoziephilipu/ACkc250.git
+   56  echo "# ACkc250" >> README.md
+   57  git init
+   58  git add README.md
+   59  git commit -m "first commit"
+   60  git branch -M main
+   61  git remote add origin https://github.com/chigoziephilipu/ACkc250.git
+   62  git push -u origin main
+   63  git 
+   64  apt update
+   65  https://github.com/chigoziephilipu/ACkc250.git
+   66  git@github.com:chigoziephilipu/ACkc250.git
+   67  history'
+   68  history
